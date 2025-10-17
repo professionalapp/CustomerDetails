@@ -1,0 +1,267 @@
+@page
+@model CustomerDetails.Pages.AboutModel
+@{
+    ViewData["Title"] = "نبذة عن التطبيق";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/about.css" asp-append-version="true" />
+}
+
+<div class="about-hero">
+    <div class="container">
+        <div class="row align-items-center min-vh-100">
+            <div class="col-lg-6">
+                <div class="about-content">
+                    <h1 class="about-title">
+                        نبذة عن
+                        <span class="text-primary">تفاصيل العملاء</span>
+                    </h1>
+                    <p class="about-description">
+                        نظام متطور لإدارة العملاء والمعاملات المالية تم تطويره بعناية فائقة
+                        لتوفير تجربة مستخدم ممتازة وإدارة فعالة للبيانات المالية.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="about-image">
+                    <div class="floating-icons">
+                        <div class="floating-icon icon-1">
+                            <i class="fas fa-code fa-3x text-primary"></i>
+                        </div>
+                        <div class="floating-icon icon-2">
+                            <i class="fas fa-database fa-3x text-success"></i>
+                        </div>
+                        <div class="floating-icon icon-3">
+                            <i class="fas fa-mobile-alt fa-3x text-info"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- قسم معلومات المطور -->
+<section class="developer-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">مطور التطبيق</h2>
+                <p class="section-description">تعرف على المطور الذي قام بتصميم وتطوير هذا النظام</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="developer-card">
+                    <div class="developer-avatar">
+                        <img src="~/images/Img.jpg" alt="صورة السيد مروان يوسف" class="developer-photo"
+                            id="developerPhoto" />
+                    </div>
+
+                    <!-- The Modal -->
+                    <div id="imageModal" class="modal">
+
+                        <!-- The Close Button -->
+                        <span class="close">&times;</span>
+
+                        <!-- Modal Content (The Image) -->
+                        <img class="modal-content" id="img01">
+
+                        <!-- Modal Caption (Image Description) -->
+                        <div id="caption"></div>
+                    </div>
+                    <div class="developer-info">
+                        <h3 class="developer-name">السيد مروان يوسف</h3>
+                        <p class="developer-title">مطور التطبيق</p>
+                        <p class="developer-description">
+                            مطور محترف متخصص في تطوير التطبيقات والأنظمة الإدارية باستخدام أحدث التقنيات.
+                            قام بتصميم وتطوير هذا النظام ليوفر حلاً شاملاً لإدارة العملاء والمعاملات المالية.
+                        </p>
+                        <div class="developer-skills">
+                            <span class="skill-tag">Dart</span>
+                            <span class="skill-tag">JavaScript</span>
+                            <span class="skill-tag">C#</span>
+                            <span class="skill-tag">ASP.NET Core</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- قسم ميزات التطبيق -->
+<section class="features-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">ميزات التطبيق</h2>
+                <p class="section-description">اكتشف الميزات المتطورة التي يوفرها هذا النظام</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-users fa-3x text-primary"></i>
+                    </div>
+                    <h4>إدارة العملاء</h4>
+                    <p>نظام شامل لإدارة بيانات العملاء مع إمكانية إضافة وتعديل المعلومات الشخصية</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-money-bill-wave fa-3x text-success"></i>
+                    </div>
+                    <h4>المعاملات المالية</h4>
+                    <p>تتبع جميع المعاملات المالية مع حساب الإحصائيات تلقائياً وإدارة الأرصدة</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-search fa-3x text-info"></i>
+                    </div>
+                    <h4>البحث الذكي</h4>
+                    <p>نظام بحث متقدم مع عرض النتائج فورياً أثناء الكتابة</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- قسم التقنيات المستخدمة -->
+<section class="tech-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title text-white">التقنيات المستخدمة</h2>
+                <p class="section-description text-white">أحدث التقنيات والأدوات المستخدمة في تطوير هذا النظام</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 mb-4">
+                <div class="tech-card">
+                    <i class="fas fa-dice-d6 fa-3x text-primary"></i>
+                    <h5>Dart</h5>
+                    <p>لغة البرمجة لبناء تطبيقات متعددة المنصات</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="tech-card">
+                    <i class="fab fa-js-square fa-3x text-warning"></i>
+                    <h5>JavaScript</h5>
+                    <p>لغة البرمجة للتفاعل</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="tech-card">
+                    <i class="fas fa-code fa-3x text-success"></i>
+                    <h5>C#</h5>
+                    <p>لغة البرمجة الرئيسية</p>
+                </div>
+            </div>
+            <div class="col-md-3 mb-4">
+                <div class="tech-card">
+                    <i class="fab fa-microsoft fa-3x text-primary"></i>
+                    <h5>ASP.NET Core</h5>
+                    <p>إطار عمل متطور لتطوير التطبيقات</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- قسم معلومات إضافية -->
+<section class="info-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center mb-5">
+                <h2 class="section-title">معلومات التطبيق</h2>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 mb-4">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-info-circle fa-2x text-primary"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>الغرض من التطبيق</h4>
+                        <p>
+                            تم تصميم هذا التطبيق لإدارة بيانات العملاء وحركاتهم المالية التي قاموا بتسجيلها.
+                            يوفر النظام واجهة سهلة الاستخدام لإضافة وتتبع جميع المعاملات المالية للعملاء.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="info-card">
+                    <div class="info-icon">
+                        <i class="fas fa-chart-line fa-2x text-success"></i>
+                    </div>
+                    <div class="info-content">
+                        <h4>الميزات الرئيسية</h4>
+                        <ul>
+                            <li>إدارة شاملة لبيانات العملاء</li>
+                            <li>تتبع المعاملات المالية</li>
+                            <li>حساب الإحصائيات تلقائياً</li>
+                            <li>نظام بحث متقدم</li>
+                            <li>واجهة عربية سهلة الاستخدام</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- قسم الدعوة للعمل -->
+<section class="cta-section">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="cta-title">ابدأ الآن</h2>
+                <p class="cta-description">استخدم النظام للبحث عن العملاء وإدارة المعاملات المالية</p>
+                <a href="/Search" class="btn btn-primary btn-lg">
+                    <i class="fas fa-rocket"></i> ابدأ البحث الآن
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+@section Scripts {
+    <script>
+        // Get the modal
+        var modal = document.getElementById("imageModal");
+
+        // Get the image and insert it inside the modal - use its "alt" text as a caption
+        var img = document.getElementById("developerPhoto");
+        var modalImg = document.getElementById("img01");
+        var captionText = document.getElementById("caption");
+
+        img.onclick = function () {
+            modal.style.display = "block";
+            modalImg.src = this.src;
+            captionText.innerHTML = this.alt;
+        }
+
+        // Get the <span> element that closes the modal
+        var span = document.getElementsByClassName("close")[0];
+
+        // When the user clicks on <span> (x), close the modal
+        span.onclick = function () {
+            modal.style.display = "none";
+        }
+
+        // Close the modal when clicking anywhere outside of the image
+        modal.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    </script>
+}

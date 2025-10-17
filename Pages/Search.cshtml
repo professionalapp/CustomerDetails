@@ -1,0 +1,465 @@
+@page
+@model CustomerDetails.Pages.SearchModel
+@{
+    ViewData["Title"] = "بحث العميل";
+}
+
+<div class="container mt-4 fade-in">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-center mb-4" style="color: #4C7EFF; font-family: 'Segoe UI', sans-serif;">
+                بحث العملاء 🔍
+            </h1>
+        </div>
+    </div>
+
+    <!-- مربع البحث المحسن -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="search-container">
+                <input type="text" 
+                       id="searchInput" 
+                       class="search-input" 
+                       placeholder="ابحث عن العميل بالاسم أو رقم المعرف..." 
+                       value="@Model.SearchId" 
+                       autocomplete="off" />
+                <i class="fas fa-search search-icon"></i>
+                <div id="searchResults" class="search-results"></div>
+            </div>
+            <div class="text-center mt-2">
+                <small class="text-muted">
+                    <i class="fas fa-info-circle"></i>
+                    اكتب اسم العميل أو رقم المعرف للبحث
+                </small>
+            </div>
+        </div>
+    </div>
+
+    <!-- النتائج -->
+    <div class="row">
+        <div class="col-12">
+            <div id="searchContent">
+                @if (string.IsNullOrEmpty(Model.SearchId))
+                {
+                    <!-- رسالة ترحيب عند عدم وجود بحث -->
+                    <div class="text-center py-5">
+                        <div class="search-welcome">
+                            <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                            <h3 class="text-muted mb-3">مرحباً بك في نظام البحث</h3>
+                            <p class="text-muted mb-4">
+                                اكتب اسم العميل أو رقم المعرف في حقل البحث أعلاه للعثور على بياناته
+                            </p>
+                            <div class="search-features">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="feature-item">
+                                            <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                            <h5>البحث بالاسم</h5>
+                                            <p class="text-muted">ابحث عن العميل باستخدام اسمه</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="feature-item">
+                                            <i class="fas fa-id-card fa-2x text-success mb-2"></i>
+                                            <h5>البحث برقم المعرف</h5>
+                                            <p class="text-muted">ابحث عن العميل باستخدام رقم معرفه</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="feature-item">
+                                            <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                            <h5>عرض الإحصائيات</h5>
+                                            <p class="text-muted">عرض جميع البيانات والمعاملات</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+                else if (Model.Customer != null)
+                {
+                    <!-- عرض البيانات عند وجود نتائج -->
+                    <div class="card">
+                        <div class="card-header bg-primary text-white">
+                            <h3 class="mb-0">بيانات العميل 👤</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <strong>رقم العميل:</strong><br>
+                                    <span class="text-primary">@Model.Customer.Id</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>الاسم:</strong><br>
+                                    <span>@Model.Customer.Name</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>العمر:</strong><br>
+                                    <span>@Model.Customer.Age سنة</span>
+                                </div>
+                                <div class="col-md-3">
+                                    <strong>تاريخ التسجيل:</strong><br>
+                                    <span>@Model.Customer.JoinDate.ToString("yyyy/MM/dd")</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @if (Model.Transactions.Any())
+                    {
+                        <div class="card mt-3">
+                            <div class="card-header bg-success text-white">
+                                <h4 class="mb-0 text-white">المعاملات المالية 💳</h4>
+                            </div>
+                            <div class="card-body">
+                                <div class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>نوع المعاملة</th>
+                                                <th>المبلغ</th>
+                                                <th>التاريخ</th>
+                                                <th>الوقت</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach (var transaction in Model.Transactions)
+                                            {
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge @(transaction.Type == "إيداع" ? "bg-success" : "bg-danger")">
+                                                            @transaction.Type
+                                                        </span>
+                                                    </td>
+                                                    <td class="@(transaction.Type == "إيداع" ? "text-success" : "text-danger") fw-bold">
+                                                        @(transaction.Type == "إيداع" ? "+" : "-")@transaction.Amount.ToString("C")
+                                                    </td>
+                                                    <td>@transaction.Date.ToString("yyyy/MM/dd")</td>
+                                                    <td>@transaction.Date.ToString("HH:mm")</td>
+                                                </tr>
+                                            }
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- رسالة عدم وجود نتائج -->
+                    <div class="alert alert-warning text-center">
+                        <h4>لم يتم العثور على العميل</h4>
+                        <p>لا يوجد عميل بهذا المعرف: <strong>@Model.SearchId</strong></p>
+                        <button type="button" class="btn btn-primary" onclick="clearSearch()">
+                            <i class="fas fa-refresh"></i> بحث جديد
+                        </button>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        let searchTimeout;
+        const searchInput = document.getElementById('searchInput');
+        const searchResults = document.getElementById('searchResults');
+        const searchContent = document.getElementById('searchContent');
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            // إخفاء النتائج إذا كان النص فارغاً
+            if (query.length === 0) {
+                searchResults.style.display = 'none';
+                return;
+            }
+
+            // إلغاء البحث السابق إذا كان موجوداً
+            if (searchTimeout) {
+                clearTimeout(searchTimeout);
+            }
+
+            // تأخير البحث لتحسين الأداء
+            searchTimeout = setTimeout(() => {
+                performSearch(query);
+            }, 300);
+        });
+
+
+        // البحث عند الضغط على Enter
+        searchInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                const query = this.value.trim();
+                if (query.length > 0) {
+                    searchResults.style.display = 'none';
+                    loadCustomerData(query);
+                }
+            }
+        });
+
+        // إخفاء النتائج عند النقر خارجها
+        document.addEventListener('click', function(e) {
+            if (!searchInput.contains(e.target) && !searchResults.contains(e.target)) {
+                searchResults.style.display = 'none';
+            }
+        });
+
+        async function performSearch(query) {
+            try {
+                const response = await fetch(`/api/search/customers?query=${encodeURIComponent(query)}`);
+                const results = await response.json();
+                
+                displaySearchResults(results);
+            } catch (error) {
+                console.error('خطأ في البحث:', error);
+                searchResults.innerHTML = '<div class="no-results">حدث خطأ أثناء البحث</div>';
+                searchResults.style.display = 'block';
+            }
+        }
+
+        function displaySearchResults(results) {
+            if (results.length === 0) {
+                searchResults.innerHTML = '<div class="no-results">لا توجد نتائج</div>';
+            } else {
+                searchResults.innerHTML = results.map(customer => `
+                    <div class="search-result-item" onclick="selectCustomer('${customer.id}')">
+                        <div class="search-result-name">${customer.name}</div>
+                        <div class="search-result-details">
+                            رقم العميل: ${customer.id} | العمر: ${customer.age} سنة | تاريخ الانضمام: ${customer.joinDate}
+                        </div>
+                    </div>
+                `).join('');
+            }
+            searchResults.style.display = 'block';
+        }
+
+        function selectCustomer(customerId) {
+            searchInput.value = customerId;
+            searchResults.style.display = 'none';
+            
+            // البحث عن بيانات العميل وعرضها مباشرة
+            loadCustomerData(customerId);
+        }
+
+        function clearSearch() {
+            searchInput.value = '';
+            searchResults.style.display = 'none';
+            
+            // إعادة عرض رسالة الترحيب
+            searchContent.innerHTML = `
+                <div class="text-center py-5">
+                    <div class="search-welcome">
+                        <i class="fas fa-search fa-4x text-muted mb-4"></i>
+                        <h3 class="text-muted mb-3">مرحباً بك في نظام البحث</h3>
+                        <p class="text-muted mb-4">
+                            اكتب اسم العميل أو رقم المعرف في حقل البحث أعلاه للعثور على بياناته
+                        </p>
+                        <div class="search-features">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="feature-item">
+                                        <i class="fas fa-user fa-2x text-primary mb-2"></i>
+                                        <h5>البحث بالاسم</h5>
+                                        <p class="text-muted">ابحث عن العميل باستخدام اسمه</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="feature-item">
+                                        <i class="fas fa-id-card fa-2x text-success mb-2"></i>
+                                        <h5>البحث برقم المعرف</h5>
+                                        <p class="text-muted">ابحث عن العميل باستخدام رقم معرفه</p>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="feature-item">
+                                        <i class="fas fa-chart-line fa-2x text-info mb-2"></i>
+                                        <h5>عرض الإحصائيات</h5>
+                                        <p class="text-muted">عرض جميع البيانات والمعاملات</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function loadCustomerData(customerId) {
+            try {
+                // إظهار مؤشر التحميل
+                searchContent.innerHTML = `
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">جاري التحميل...</span>
+                        </div>
+                        <p class="mt-2">جاري البحث عن بيانات العميل...</p>
+                    </div>
+                `;
+
+                // البحث عن العميل
+                const response = await fetch(`/api/search/customers?query=${encodeURIComponent(customerId)}`);
+                const customers = await response.json();
+                
+                if (customers.length > 0) {
+                    const customer = customers.find(c => c.id === customerId) || customers[0];
+                    await displayCustomerDetails(customer.id);
+                } else {
+                    searchContent.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <h4>لم يتم العثور على العميل</h4>
+                            <p>لا يوجد عميل بهذا المعرف: <strong>${customerId}</strong></p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('خطأ في تحميل بيانات العميل:', error);
+                searchContent.innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <h4>حدث خطأ</h4>
+                        <p>تعذر تحميل بيانات العميل. يرجى المحاولة مرة أخرى.</p>
+                    </div>
+                `;
+            }
+        }
+
+        async function displayCustomerDetails(customerId) {
+            try {
+                // جلب بيانات العميل والمعاملات
+                const [customerResponse, transactionsResponse] = await Promise.all([
+                    fetch(`/api/search/customers?query=${encodeURIComponent(customerId)}`),
+                    fetch(`/api/search/transactions?query=${encodeURIComponent(customerId)}`)
+                ]);
+
+                const customers = await customerResponse.json();
+                const transactions = await transactionsResponse.json();
+
+                if (customers.length > 0) {
+                    const customer = customers.find(c => c.id === customerId) || customers[0];
+                    
+                    // حساب الإحصائيات
+                    const totalDeposits = transactions
+                        .filter(t => t.type === 'إيداع')
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const totalWithdrawals = transactions
+                        .filter(t => t.type === 'سحب')
+                        .reduce((sum, t) => sum + t.amount, 0);
+                    
+                    const balance = totalDeposits - totalWithdrawals;
+
+                    // عرض بيانات العميل
+                    searchContent.innerHTML = `
+                        <!-- معلومات العميل -->
+                        <div class="card mb-4">
+                            <div class="card-header bg-primary text-white">
+                                <h3 class="mb-0 text-white">معلومات العميل 👤</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <strong>رقم العميل:</strong><br>
+                                        <span class="text-primary">${customer.id}</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>الاسم:</strong><br>
+                                        <span>${customer.name}</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>العمر:</strong><br>
+                                        <span>${customer.age} سنة</span>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <strong>تاريخ الانضمام:</strong><br>
+                                        <span>${customer.joinDate}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- الإحصائيات المالية -->
+                        <div class="row mb-4">
+                            <div class="col-md-4">
+                                <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                                    <h5>إجمالي الإيداعات</h5>
+                                    <h3>${totalDeposits.toLocaleString()} د.أ</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
+                                    <h5>إجمالي السحوبات</h5>
+                                    <h3>${totalWithdrawals.toLocaleString()} د.أ</h3>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="stat-card" style="background: linear-gradient(135deg, ${balance >= 0 ? '#17a2b8 0%, #6f42c1 100%' : '#ffc107 0%, #fd7e14 100%'});">
+                                    <h5>الرصيد الحالي</h5>
+                                    <h3>${balance.toLocaleString()} د.أ</h3>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- معاملات العميل -->
+                        <div class="card">
+                            <div class="card-header bg-dark text-white">
+                                <h4 class="mb-0 text-white">سجل المعاملات 💳</h4>
+                            </div>
+                            <div class="card-body">
+                                ${transactions.length > 0 ? `
+                                    <div class="table-responsive">
+                                        <table class="table table-striped table-hover">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>نوع المعاملة</th>
+                                                    <th>المبلغ</th>
+                                                    <th>التاريخ</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                ${transactions.map(transaction => `
+                                                    <tr>
+                                                        <td>
+                                                            <span class="badge ${transaction.type === 'إيداع' ? 'bg-success' : 'bg-danger'} fs-6">
+                                                                ${transaction.type}
+                                                            </span>
+                                                        </td>
+                                                        <td class="${transaction.type === 'إيداع' ? 'text-success' : 'text-danger'} fw-bold">
+                                                            ${transaction.type === 'إيداع' ? '+' : '-'}${transaction.amount.toLocaleString()} د.أ
+                                                        </td>
+                                                        <td>${transaction.date}</td>
+                                                    </tr>
+                                                `).join('')}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                ` : `
+                                    <div class="text-center py-4">
+                                        <p class="text-muted">لا توجد معاملات لهذا العميل</p>
+                                    </div>
+                                `}
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    searchContent.innerHTML = `
+                        <div class="alert alert-warning text-center">
+                            <h4>لم يتم العثور على العميل</h4>
+                            <p>لا يوجد عميل بهذا المعرف: <strong>${customerId}</strong></p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                console.error('خطأ في عرض بيانات العميل:', error);
+                searchContent.innerHTML = `
+                    <div class="alert alert-danger text-center">
+                        <h4>حدث خطأ</h4>
+                        <p>تعذر عرض بيانات العميل. يرجى المحاولة مرة أخرى.</p>
+                    </div>
+                `;
+            }
+        }
+    </script>
+}

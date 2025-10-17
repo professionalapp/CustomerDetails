@@ -1,0 +1,24 @@
+# DotNet Core
+## Ignore Visual Studio files and folders
+.vs/
+bin/
+obj/
+publish/
+*.user
+*.suo
+*.sln.docstates
+
+## Ignore NuGet packages
+packages/
+
+## Ignore node_modules for frontend if used
+node_modules/
+
+## Ignore test results
+TestResults/
+
+## Ignore log files
+*.log
+
+# Firebase service account file
+employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json

@@ -1,0 +1,170 @@
+@page "/CustomerDetails/{id}"
+@model CustomerDetails.Pages.CustomerDetailsModel
+@{
+    ViewData["Title"] = "تفاصيل العميل";
+}
+
+<div class="container mt-4 fade-in">
+    <!-- زر العودة -->
+    <div class="row mb-3">
+        <div class="col-12">
+            <a href="/" class="btn btn-secondary">
+                <i class="fas fa-arrow-right"></i> العودة للقائمة الرئيسية
+            </a>
+        </div>
+    </div>
+
+    @if (Model.Customer != null)
+    {
+        <!-- معلومات العميل -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-primary text-white">
+                        <h3 class="mb-0">معلومات العميل 👤</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>رقم العميل:</strong><br>
+                                <span class="text-primary">@Model.Customer.Id</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>الاسم:</strong><br>
+                                <span>@Model.Customer.Name</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>العمر:</strong><br>
+                                <span>@Model.Customer.Age سنة</span>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>تاريخ الانضمام:</strong><br>
+                                <span>@Model.Customer.JoinDate.ToString("yyyy/MM/dd")</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- الإحصائيات المالية -->
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%);">
+                    <h5>إجمالي الإيداعات</h5>
+                    <h3>@Model.TotalDeposits.ToString("C")</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card" style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);">
+                    <h5>إجمالي السحوبات</h5>
+                    <h3>@Model.TotalWithdrawals.ToString("C")</h3>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="stat-card @(Model.Balance >= 0 ? "bg-info" : "bg-warning")" 
+                     style="background: linear-gradient(135deg, @(Model.Balance >= 0 ? "#17a2b8 0%, #6f42c1 100%" : "#ffc107 0%, #fd7e14 100%"));">
+                    <h5>الرصيد الحالي</h5>
+                    <h3>@Model.Balance.ToString("C")</h3>
+                </div>
+            </div>
+        </div>
+
+        <!-- معاملات العميل -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        <h4 class="mb-0">سجل المعاملات 💳</h4>
+                    </div>
+                    <div class="card-body">
+                        @if (Model.CustomerTransactions.Any())
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-striped table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>نوع المعاملة</th>
+                                            <th>المبلغ</th>
+                                            <th>التاريخ</th>
+                                            <th>الوقت</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var transaction in Model.CustomerTransactions)
+                                        {
+                                            <tr>
+                                                <td>
+                                                    <span class="badge @(transaction.Type == "إيداع" ? "bg-success" : "bg-danger") fs-6">
+                                                        @transaction.Type
+                                                    </span>
+                                                </td>
+                                                <td class="@(transaction.Type == "إيداع" ? "text-success" : "text-danger") fw-bold">
+                                                    @(transaction.Type == "إيداع" ? "+" : "-")@transaction.Amount.ToString("C")
+                                                </td>
+                                                <td>@transaction.Date.ToString("yyyy/MM/dd")</td>
+                                                <td>@transaction.Date.ToString("HH:mm")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="text-center py-4">
+                                <p class="text-muted">لا توجد معاملات لهذا العميل</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <div class="col-12">
+                <div class="alert alert-danger text-center">
+                    <h4>العميل غير موجود</h4>
+                    <p>لم يتم العثور على العميل المطلوب.</p>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .card {
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border: none;
+        margin-bottom: 20px;
+    }
+    
+    .card-header {
+        border-bottom: none;
+    }
+    
+    .table th {
+        background-color: #343a40 !important;
+        color: white;
+        font-weight: bold;
+    }
+    
+    .table-hover tbody tr:hover {
+        background-color: #f8f9fa;
+    }
+    
+    .badge {
+        font-size: 0.9em;
+        padding: 0.5em 0.75em;
+    }
+    
+    .text-success {
+        color: #28a745 !important;
+    }
+    
+    .text-danger {
+        color: #dc3545 !important;
+    }
+</style>

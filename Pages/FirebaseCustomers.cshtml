@@ -1,0 +1,37 @@
+@page
+@model CustomerDetails.Pages.FirebaseCustomersModel
+@{
+    ViewData["Title"] = "Firebase Customers";
+}
+<h1>@ViewData["Title"]</h1>
+
+<p>This page will display customer data fetched from Firebase Firestore.</p>
+
+@if (Model.FirebaseCustomers != null && Model.FirebaseCustomers.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Age</th>
+                <th>Join Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var customer in Model.FirebaseCustomers)
+            {
+                <tr>
+                    <td>@customer.Id</td>
+                    <td>@customer.Name</td>
+                    <td>@customer.Age</td>
+                    <td>@customer.JoinDate.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No customer data found in Firebase Firestore.</p>
+}

@@ -1,0 +1,85 @@
+@page
+@model CustomerDetails.Pages.AddEmployeeModel
+@{
+    ViewData["Title"] = "إضافة موظف";
+}
+
+<div class="container mt-4">
+    <h2>إضافة موظف جديد</h2>
+    <form id="addEmployeeForm" class="mt-3">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">رقم الموظف</label>
+                <input class="form-control" id="employeeId" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">نوع الوثيقة</label>
+                <select class="form-select" id="identityType">
+                    <option value="هوية أردنية">هوية أردنية</option>
+                    <option value="جواز سفر">جواز سفر</option>
+                    <option value="إقامة">إقامة</option>
+                </select>
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">الاسم</label>
+                <input class="form-control" id="name" required />
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">العمر</label>
+                <input type="number" class="form-control" id="age" min="0" />
+            </div>
+            <div class="col-md-8">
+                <label class="form-label">العنوان</label>
+                <input class="form-control" id="address" />
+            </div>
+            <div class="col-md-12">
+                <label class="form-label">رابط الصورة الشخصية</label>
+                <input class="form-control" id="imageUrl" />
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">حفظ</button>
+            <a asp-page="/Employees" class="btn btn-secondary">العودة</a>
+        </div>
+    </form>
+
+    <div id="resultMsg" class="mt-3"></div>
+</div>
+
+@section Scripts {
+    <script>
+        const form = document.getElementById('addEmployeeForm');
+        const resultMsg = document.getElementById('resultMsg');
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            resultMsg.innerHTML = '';
+            const payload = {
+                employeeId: document.getElementById('employeeId').value.trim(),
+                identityType: document.getElementById('identityType').value,
+                name: document.getElementById('name').value.trim(),
+                age: parseInt(document.getElementById('age').value || '0'),
+                address: document.getElementById('address').value.trim(),
+                imageUrl: document.getElementById('imageUrl').value.trim()
+            };
+
+            try {
+                const res = await fetch('/api/employees', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    resultMsg.innerHTML = '<div class="alert alert-success">تمت إضافة الموظف بنجاح</div>';
+                    form.reset();
+                    playSound('add.mp3'); // Play sound here
+                } else {
+                    const err = await res.json();
+                    resultMsg.innerHTML = `<div class="alert alert-danger">فشل: ${err.message ?? 'حدث خطأ'}</div>`;
+                }
+            } catch (err) {
+                console.error(err);
+                resultMsg.innerHTML = '<div class="alert alert-danger">تعذر الاتصال بالخادم</div>';
+            }
+        });
+    </script>
+}

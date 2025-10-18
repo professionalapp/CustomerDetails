@@ -33,3 +33,4 @@ namespace CustomerDetails.Models
         public string? ImageUrl { get; set; }
     }
 }
+

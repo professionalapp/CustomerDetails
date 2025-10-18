@@ -20,5 +20,5 @@ TestResults/
 ## Ignore log files
 *.log
 
-# Firebase service account file
+# Firebase service account file - IMPORTANT: DO NOT COMMIT SENSITIVE FILES
 employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json

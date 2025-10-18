@@ -1,5 +1,9 @@
 using CustomerDetails.Models;
 using Google.Cloud.Firestore;
+using Google.Apis.Auth.OAuth2;
+using FirebaseAdmin;
+using System.IO;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -7,12 +11,29 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
-// Configure Firebase Firestore
-// IMPORTANT: Replace with the actual path to your service account key file
-string firebaseConfigPath = Path.Combine(builder.Environment.ContentRootPath, "employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json");
-Environment.SetEnvironmentVariable("GOOGLE_APPLICATION_CREDENTIALS", firebaseConfigPath);
+// Firebase Initialization - START
+var firebaseServiceAccountJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON");
+if (!string.IsNullOrEmpty(firebaseServiceAccountJson))
+{
+    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(firebaseServiceAccountJson)))
+    {
+        FirebaseApp.Create(new AppOptions()
+        {
+            Credential = GoogleCredential.FromStream(stream)
+        });
+    }
+}
+else
+{
+    // For local development, if the file is present in the project root.
+    FirebaseApp.Create(new AppOptions()
+    {
+        Credential = GoogleCredential.FromFile(Path.Combine(builder.Environment.ContentRootPath, "employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json"))
+    });
+}
+// Firebase Initialization - END
 
-// IMPORTANT: Replace "YOUR_PROJECT_ID" with your actual Firebase project ID
+// Configure Firebase Firestore
 FirestoreDb firestoreDb = FirestoreDb.Create("employee-services-60fa4");
 builder.Services.AddSingleton(firestoreDb);
 

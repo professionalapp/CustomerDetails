@@ -50,8 +50,17 @@ catch (Exception ex)
 // Firebase Initialization - END
 
 // Configure Firebase Firestore
-FirestoreDb firestoreDb = FirestoreDb.Create("employee-services-60fa4");
-builder.Services.AddSingleton(firestoreDb);
+try
+{
+    FirestoreDb firestoreDb = FirestoreDb.Create("employee-services-60fa4");
+    builder.Services.AddSingleton(firestoreDb);
+    Console.WriteLine("Firestore database initialized successfully");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Firestore initialization error: {ex.Message}");
+    // Continue without Firestore if it fails
+}
 
 var app = builder.Build();
 

@@ -11,7 +11,7 @@ COPY --from=build /src/appsettings.json .
 COPY --from=build /src/appsettings.Development.json .
 COPY --from=build /app/build .
 # تعيين متغير البيئة للبورت
-ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
+ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 ENV ASPNETCORE_ENVIRONMENT=Production
-EXPOSE $PORT
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "CustomerDetails.dll"]

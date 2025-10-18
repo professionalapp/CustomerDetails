@@ -80,138 +80,195 @@ namespace CustomerDetails.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int limit = 200)
         {
-            var snapshot = await _db.Collection(EmployeesCollection)
-                .OrderBy("name")
-                .Limit(limit)
-                .GetSnapshotAsync();
-
-            var list = new List<object>();
-            foreach (var doc in snapshot.Documents)
+            try
             {
-                if (!doc.Exists) continue;
+                var snapshot = await _db.Collection(EmployeesCollection)
+                    .OrderBy("name")
+                    .Limit(limit)
+                    .GetSnapshotAsync();
+
+                var list = new List<object>();
+                foreach (var doc in snapshot.Documents)
+                {
+                    if (!doc.Exists) continue;
+                    try
+                    {
+                        var emp = doc.ConvertTo<Employee>();
+                        list.Add(new
+                        {
+                            id = emp.EmployeeId,
+                            name = emp.Name,
+                            age = emp.Age,
+                            createdAt = emp.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd"),
+                            address = emp.Address,
+                            identityType = emp.IdentityType,
+                            identityName = emp.IdentityName,
+                            imageUrl = emp.ImageUrl
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"خطأ في تحويل المستند {doc.Id}: {ex.Message}");
+                        // تخطي المستند المعطل والمتابعة
+                        continue;
+                    }
+                }
+
+                return Ok(list);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في جلب بيانات الموظفين: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات الموظفين", error = ex.Message });
+            }
+        }
+
+        [HttpGet("search")]
+        public async Task<IActionResult> Search([FromQuery] string query)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(query))
+                {
+                    return Ok(new List<object>());
+                }
+
+                var employeesCol = _db.Collection(EmployeesCollection);
+
+                var nameTask = employeesCol
+                    .WhereGreaterThanOrEqualTo("name", query)
+                    .WhereLessThanOrEqualTo("name", query + "\uf8ff")
+                    .Limit(10)
+                    .GetSnapshotAsync();
+
+                var idTask = employeesCol
+                    .WhereGreaterThanOrEqualTo("employeeId", query)
+                    .WhereLessThanOrEqualTo("employeeId", query + "\uf8ff")
+                    .Limit(10)
+                    .GetSnapshotAsync();
+
+                await Task.WhenAll(nameTask, idTask);
+
+                var docs = nameTask.Result.Documents.Concat(idTask.Result.Documents)
+                    .GroupBy(d => d.Id)
+                    .Select(g => g.First());
+
+                var results = new List<object>();
+                foreach (var doc in docs)
+                {
+                    if (!doc.Exists) continue;
+                    try
+                    {
+                        var emp = doc.ConvertTo<Employee>();
+                        results.Add(new
+                        {
+                            id = emp.EmployeeId,
+                            name = emp.Name,
+                            age = emp.Age,
+                            joinDate = (emp.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd")) ?? string.Empty
+                        });
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"خطأ في تحويل المستند {doc.Id} أثناء البحث: {ex.Message}");
+                        continue;
+                    }
+                }
+
+                return Ok(results);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في البحث: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء البحث", error = ex.Message });
+            }
+        }
+
+        [HttpGet("{employeeId}")]
+        public async Task<IActionResult> GetByEmployeeId(string employeeId)
+        {
+            try
+            {
+                var snapshot = await _db.Collection(EmployeesCollection)
+                    .WhereEqualTo("employeeId", employeeId)
+                    .Limit(1)
+                    .GetSnapshotAsync();
+
+                var doc = snapshot.Documents.FirstOrDefault();
+                if (doc == null || !doc.Exists)
+                {
+                    return NotFound(new { message = "الموظف غير موجود" });
+                }
+
                 var emp = doc.ConvertTo<Employee>();
-                list.Add(new
+                return Ok(new
                 {
                     id = emp.EmployeeId,
                     name = emp.Name,
                     age = emp.Age,
                     createdAt = emp.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd"),
                     address = emp.Address,
-                    identityType = emp.IdentityType,
                     identityName = emp.IdentityName,
-                    imageUrl = emp.ImageUrl
+                    identityType = emp.IdentityType,
+                    imageUrl = emp.ImageUrl,
+                    updatedAt = emp.UpdatedAt?.ToDateTime().ToString("yyyy/MM/dd HH:mm")
                 });
             }
-
-            return Ok(list);
-        }
-
-        [HttpGet("search")]
-        public async Task<IActionResult> Search([FromQuery] string query)
-        {
-            if (string.IsNullOrWhiteSpace(query))
+            catch (Exception ex)
             {
-                return Ok(new List<object>());
+                Console.WriteLine($"خطأ في جلب بيانات الموظف {employeeId}: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات الموظف", error = ex.Message });
             }
-
-            var employeesCol = _db.Collection(EmployeesCollection);
-
-            var nameTask = employeesCol
-                .WhereGreaterThanOrEqualTo("name", query)
-                .WhereLessThanOrEqualTo("name", query + "\uf8ff")
-                .Limit(10)
-                .GetSnapshotAsync();
-
-            var idTask = employeesCol
-                .WhereGreaterThanOrEqualTo("employeeId", query)
-                .WhereLessThanOrEqualTo("employeeId", query + "\uf8ff")
-                .Limit(10)
-                .GetSnapshotAsync();
-
-            await Task.WhenAll(nameTask, idTask);
-
-            var docs = nameTask.Result.Documents.Concat(idTask.Result.Documents)
-                .GroupBy(d => d.Id)
-                .Select(g => g.First());
-
-            var results = new List<object>();
-            foreach (var doc in docs)
-            {
-                if (!doc.Exists) continue;
-                var emp = doc.ConvertTo<Employee>();
-                results.Add(new
-                {
-                    id = emp.EmployeeId,
-                    name = emp.Name,
-                    age = emp.Age,
-                    joinDate = (emp.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd")) ?? string.Empty
-                });
-            }
-
-            return Ok(results);
-        }
-
-        [HttpGet("{employeeId}")]
-        public async Task<IActionResult> GetByEmployeeId(string employeeId)
-        {
-            var snapshot = await _db.Collection(EmployeesCollection)
-                .WhereEqualTo("employeeId", employeeId)
-                .Limit(1)
-                .GetSnapshotAsync();
-
-            var doc = snapshot.Documents.FirstOrDefault();
-            if (doc == null || !doc.Exists)
-            {
-                return NotFound(new { message = "الموظف غير موجود" });
-            }
-
-            var emp = doc.ConvertTo<Employee>();
-            return Ok(new
-            {
-                id = emp.EmployeeId,
-                name = emp.Name,
-                age = emp.Age,
-                createdAt = emp.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd"),
-                address = emp.Address,
-                identityName = emp.IdentityName,
-                identityType = emp.IdentityType,
-                imageUrl = emp.ImageUrl,
-                updatedAt = emp.UpdatedAt?.ToDateTime().ToString("yyyy/MM/dd HH:mm")
-            });
         }
 
         [HttpGet("{employeeId}/transactions")]
         public async Task<IActionResult> GetTransactions(string employeeId, [FromQuery] int limit = 200)
         {
-            var snapshot = await _db.Collection(TransactionsCollection)
-                .WhereEqualTo("employeeId", employeeId)
-                .Limit(limit)
-                .GetSnapshotAsync();
-
-            var list = new List<EmployeeTransaction>();
-            foreach (var doc in snapshot.Documents)
+            try
             {
-                if (!doc.Exists) continue;
-                var tr = doc.ConvertTo<EmployeeTransaction>();
-                tr.DocumentId = doc.Id; // Capture the Firestore document ID
-                list.Add(tr);
-            }
+                var snapshot = await _db.Collection(TransactionsCollection)
+                    .WhereEqualTo("employeeId", employeeId)
+                    .Limit(limit)
+                    .GetSnapshotAsync();
 
-            var ordered = list
-                .OrderByDescending(t => t.TransactionTime?.ToDateTime().Ticks ?? t.CreatedAt?.ToDateTime().Ticks ?? 0)
-                .Select(tr => new
+                var list = new List<EmployeeTransaction>();
+                foreach (var doc in snapshot.Documents)
                 {
-                    documentId = tr.DocumentId, // Return the document ID
-                    employeeId = tr.EmployeeId,
-                    amount = tr.Amount,
-                    transactionType = tr.TransactionType,
-                    transactionTime = tr.TransactionTime?.ToDateTime().ToString("yyyy/MM/dd HH:mm") ?? tr.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd HH:mm"),
-                    boxNumber = tr.BoxNumber,
-                    description = tr.Description
-                })
-                .ToList();
+                    if (!doc.Exists) continue;
+                    try
+                    {
+                        var tr = doc.ConvertTo<EmployeeTransaction>();
+                        tr.DocumentId = doc.Id; // Capture the Firestore document ID
+                        list.Add(tr);
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"خطأ في تحويل المعاملة {doc.Id}: {ex.Message}");
+                        continue;
+                    }
+                }
 
-            return Ok(ordered);
+                var ordered = list
+                    .OrderByDescending(t => t.TransactionTime?.ToDateTime().Ticks ?? t.CreatedAt?.ToDateTime().Ticks ?? 0)
+                    .Select(tr => new
+                    {
+                        documentId = tr.DocumentId, // Return the document ID
+                        employeeId = tr.EmployeeId,
+                        amount = tr.Amount,
+                        transactionType = tr.TransactionType,
+                        transactionTime = tr.TransactionTime?.ToDateTime().ToString("yyyy/MM/dd HH:mm") ?? tr.CreatedAt?.ToDateTime().ToString("yyyy/MM/dd HH:mm"),
+                        boxNumber = tr.BoxNumber,
+                        description = tr.Description
+                    })
+                    .ToList();
+
+                return Ok(ordered);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في جلب معاملات الموظف {employeeId}: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل معاملات الموظف", error = ex.Message });
+            }
         }
 
         // GET single transaction by documentId

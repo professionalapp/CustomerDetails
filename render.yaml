@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: customer-details-app
+    env: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    region: oregon
+    branch: master
+    buildCommand: ""
+    startCommand: ""
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false
+        # ستحتاج لإضافة محتوى ملف JSON هنا في لوحة تحكم Render

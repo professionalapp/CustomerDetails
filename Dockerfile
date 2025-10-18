@@ -10,5 +10,8 @@ WORKDIR /app
 COPY --from=build /src/appsettings.json .
 COPY --from=build /src/appsettings.Development.json .
 COPY --from=build /app/build .
-EXPOSE 8080
+# تعيين متغير البيئة للبورت
+ENV ASPNETCORE_URLS=http://0.0.0.0:$PORT
+ENV ASPNETCORE_ENVIRONMENT=Production
+EXPOSE $PORT
 ENTRYPOINT ["dotnet", "CustomerDetails.dll"]

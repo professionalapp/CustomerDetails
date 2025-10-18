@@ -12,24 +12,40 @@ builder.Services.AddRazorPages();
 builder.Services.AddControllers();
 
 // Firebase Initialization - START
-var firebaseServiceAccountJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON");
-if (!string.IsNullOrEmpty(firebaseServiceAccountJson))
+try
 {
-    using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(firebaseServiceAccountJson)))
+    var firebaseServiceAccountJson = Environment.GetEnvironmentVariable("FIREBASE_SERVICE_ACCOUNT_JSON");
+    if (!string.IsNullOrEmpty(firebaseServiceAccountJson))
     {
-        FirebaseApp.Create(new AppOptions()
+        // For production (Render.com) - use environment variable
+        using (var stream = new MemoryStream(Encoding.UTF8.GetBytes(firebaseServiceAccountJson)))
         {
-            Credential = GoogleCredential.FromStream(stream)
-        });
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromStream(stream)
+            });
+        }
+    }
+    else
+    {
+        // For local development, if the file is present in the project root.
+        var serviceAccountPath = Path.Combine(builder.Environment.ContentRootPath, "employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json");
+        if (File.Exists(serviceAccountPath))
+        {
+            FirebaseApp.Create(new AppOptions()
+            {
+                Credential = GoogleCredential.FromFile(serviceAccountPath)
+            });
+        }
+        else
+        {
+            Console.WriteLine("Warning: Firebase service account file not found and FIREBASE_SERVICE_ACCOUNT_JSON not set");
+        }
     }
 }
-else
+catch (Exception ex)
 {
-    // For local development, if the file is present in the project root.
-    FirebaseApp.Create(new AppOptions()
-    {
-        Credential = GoogleCredential.FromFile(Path.Combine(builder.Environment.ContentRootPath, "employee-services-60fa4-firebase-adminsdk-o405k-d21a9b72c4.json"))
-    });
+    Console.WriteLine($"Firebase initialization error: {ex.Message}");
 }
 // Firebase Initialization - END
 

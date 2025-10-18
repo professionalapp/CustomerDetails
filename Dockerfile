@@ -10,6 +10,8 @@ WORKDIR /app
 COPY --from=build /src/appsettings.json .
 COPY --from=build /src/appsettings.Development.json .
 COPY --from=build /app/build .
+# نسخ ملفات التصميم والثابتة
+COPY --from=build /src/wwwroot ./wwwroot
 # تعيين متغير البيئة للبورت
 ENV ASPNETCORE_URLS=http://0.0.0.0:8080
 ENV ASPNETCORE_ENVIRONMENT=Production

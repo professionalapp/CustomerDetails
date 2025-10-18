@@ -75,6 +75,9 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
+// إعدادات إضافية لملفات التصميم
+app.UseDefaultFiles();
+
 app.UseRouting();
 
 app.UseAuthorization();

@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddControllers();
+builder.Services.AddHttpClient();
 
 // Bind Kestrel to the hosting PORT if provided (e.g., Render)
 var portEnv = Environment.GetEnvironmentVariable("PORT");

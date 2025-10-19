@@ -1,0 +1,37 @@
+.users-page .page-header {
+    gap: 12px;
+}
+
+.users-page .search-form .input-group .form-control {
+    min-width: 280px;
+}
+
+.users-page .user-card {
+    border: 1px solid rgba(0,0,0,0.08);
+    transition: transform .15s ease, box-shadow .15s ease;
+    border-radius: .75rem;
+}
+
+.users-page .user-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 .5rem 1rem rgba(0,0,0,.08) !important;
+}
+
+.users-page .info-list li {
+    padding: .25rem 0;
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.users-page .empty-state {
+    background: #fff;
+}
+
+@media (max-width: 576px) {
+    .users-page .search-form .input-group .form-control {
+        min-width: 180px;
+    }
+}
+
+

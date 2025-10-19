@@ -1,0 +1,121 @@
+@page
+@model CustomerDetails.Pages.UsersModel
+@{
+    ViewData["Title"] = "المستخدمون";
+}
+
+@section Styles {
+    <link rel="stylesheet" href="~/css/users.css" asp-append-version="true" />
+}
+
+<div class="users-page">
+    <div class="page-header d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <h1 class="h3 m-0 text-white"><i class="fas fa-users text-primary"></i> المستخدمون</h1>
+        <div class="search-form d-flex align-items-center" role="search">
+            <div class="input-group">
+                <span class="input-group-text bg-white"><i class="fas fa-search"></i></span>
+                <input type="text" name="q" value="@Model.Query" class="form-control"
+                    placeholder="ابحث بالاسم، اسم المستخدم، البريد، الهاتف، الشركة، المدينة..." aria-label="Search"
+                    id="searchInput" />
+            </div>
+        </div>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger" role="alert">
+            <i class="fas fa-triangle-exclamation"></i> @Model.ErrorMessage
+        </div>
+    }
+
+    <div class="d-flex align-items-center justify-content-between mb-3">
+        <div class="text-muted">عدد النتائج: <strong id="resultsCount">@(Model.Users?.Count ?? 0)</strong></div>
+        <a class="btn btn-outline-secondary btn-sm" href="/Users"><i class="fas fa-rotate-right"></i> تحديث</a>
+    </div>
+
+    <div class="row g-3">
+        @if (Model.Users != null && Model.Users.Count > 0)
+        {
+            foreach (var u in Model.Users)
+            {
+                <div class="col-12 col-md-6 col-lg-4 user-card-item" data-name="@u.Name" data-username="@u.Username"
+                    data-email="@u.Email" data-phone="@u.Phone" data-website="@u.Website" data-company="@u.Company?.Name"
+                    data-city="@u.Address?.City" data-street="@u.Address?.Street" data-suite="@u.Address?.Suite">
+                    <div class="card user-card h-100 shadow-sm">
+                        <div class="card-body">
+                            <div class="d-flex align-items-start justify-content-between mb-2">
+                                <div>
+                                    <h5 class="card-title mb-1"><i class="fas fa-user-circle text-primary"></i> @u.Name</h5>
+                                    <div class="text-muted small">@("@" + u.Username)</div>
+                                </div>
+                                <span class="badge bg-light text-dark">#@u.Id</span>
+                            </div>
+                            <ul class="list-unstyled info-list mb-0">
+                                <li><i class="fas fa-envelope text-danger"></i> <a href="mailto:@u.Email">@u.Email</a></li>
+                                <li><i class="fas fa-phone text-success"></i> <a href="tel:@u.Phone">@u.Phone</a></li>
+                                <li><i class="fas fa-globe text-info"></i> <a target="_blank" rel="noopener"
+                                        href="https://@u.Website">@u.Website</a></li>
+                                <li><i class="fas fa-building text-secondary"></i> @u.Company?.Name</li>
+                                <li><i class="fas fa-location-dot text-primary"></i> @u.Address?.City, @u.Address?.Street
+                                    (@u.Address?.Suite)</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="col-12">
+                <div class="empty-state text-center p-5 border rounded-3">
+                    <div class="display-6 text-muted mb-3"><i class="far fa-face-frown"></i></div>
+                    <p class="lead mb-1">لا توجد نتائج مطابقة.</p>
+                    <p class="text-muted mb-0">جرّب كلمات أخرى أو امسح البحث.</p>
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchInput');
+            const items = Array.from(document.querySelectorAll('.user-card-item'));
+            const resultsCount = document.getElementById('resultsCount');
+
+            function normalize(value) {
+                return (value || '').toString().toLowerCase();
+            }
+
+            function matches(item, query) {
+                if (!query) return true;
+                const fields = [
+                    item.dataset.name,
+                    item.dataset.username,
+                    item.dataset.email,
+                    item.dataset.phone,
+                    item.dataset.website,
+                    item.dataset.company,
+                    item.dataset.city,
+                    item.dataset.street,
+                    item.dataset.suite
+                ];
+                return fields.some(f => normalize(f).includes(query));
+            }
+
+            function applyFilter() {
+                const q = normalize(searchInput.value.trim());
+                let visible = 0;
+                items.forEach(item => {
+                    const show = matches(item, q);
+                    item.classList.toggle('d-none', !show);
+                    if (show) visible++;
+                });
+                if (resultsCount) resultsCount.textContent = visible.toString();
+            }
+
+            searchInput.addEventListener('input', applyFilter);
+        });
+    </script>
+}

@@ -437,5 +437,102 @@ namespace CustomerDetails.Controllers
                 return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
             }
         }
+
+        // DELETE specific transaction
+        [HttpDelete("{employeeId}/transactions/{transactionId}")]
+        public async Task<IActionResult> DeleteTransaction(string employeeId, string transactionId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(employeeId) || string.IsNullOrWhiteSpace(transactionId))
+                    return BadRequest(new { message = "رقم العميل ورقم المعاملة مطلوبان" });
+
+                // Verify employee exists
+                var empCol = _db.Collection(EmployeesCollection);
+                var empSnapshot = await empCol.WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
+                if (!empSnapshot.Any())
+                    return NotFound(new { message = "العميل غير موجود" });
+
+                // Find and delete the transaction
+                var txCol = _db.Collection(TransactionsCollection);
+                var txDoc = txCol.Document(transactionId);
+                var txSnapshot = await txDoc.GetSnapshotAsync();
+                
+                if (!txSnapshot.Exists)
+                    return NotFound(new { message = "المعاملة غير موجودة" });
+
+                // Get transaction data for logging
+                var transactionData = txSnapshot.ConvertTo<EmployeeTransaction>();
+                var transactionType = transactionData?.TransactionType ?? "غير محدد";
+                var transactionAmount = transactionData?.Amount ?? 0;
+
+                await txDoc.DeleteAsync();
+
+                Console.WriteLine($"تم حذف المعاملة: {transactionType} - {transactionAmount} د.أ (رقم العميل: {employeeId})");
+
+                return Ok(new { 
+                    ok = true, 
+                    message = $"تم حذف المعاملة '{transactionType}' بقيمة {transactionAmount} د.أ بنجاح"
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في حذف المعاملة: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
+        }
+
+        // DELETE all transactions for an employee
+        [HttpDelete("{employeeId}/transactions")]
+        public async Task<IActionResult> DeleteAllEmployeeTransactions(string employeeId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(employeeId))
+                    return BadRequest(new { message = "رقم العميل مطلوب" });
+
+                // Verify employee exists
+                var empCol = _db.Collection(EmployeesCollection);
+                var empSnapshot = await empCol.WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
+                if (!empSnapshot.Any())
+                    return NotFound(new { message = "العميل غير موجود" });
+
+                // Get employee data for logging
+                var empDoc = empSnapshot.Documents.FirstOrDefault();
+                var employeeData = empDoc?.ConvertTo<Employee>();
+                var employeeName = employeeData?.Name ?? "غير محدد";
+
+                // Delete all transactions for this employee
+                var txCol = _db.Collection(TransactionsCollection);
+                var txSnapshot = await txCol.WhereEqualTo("employeeId", employeeId).GetSnapshotAsync();
+                
+                int deletedTransactionsCount = 0;
+                decimal totalAmount = 0;
+                
+                foreach (var txDoc in txSnapshot.Documents)
+                {
+                    var txData = txDoc.ConvertTo<EmployeeTransaction>();
+                    if (txData?.Amount != null)
+                        totalAmount += txData.Amount.Value;
+                    
+                    await txDoc.Reference.DeleteAsync();
+                    deletedTransactionsCount++;
+                }
+
+                Console.WriteLine($"تم حذف جميع معاملات العميل: {employeeName} (رقم العميل: {employeeId}) - {deletedTransactionsCount} معاملة بقيمة إجمالية {totalAmount} د.أ");
+
+                return Ok(new { 
+                    ok = true, 
+                    message = $"تم حذف جميع معاملات العميل '{employeeName}' بنجاح ({deletedTransactionsCount} معاملة بقيمة {totalAmount} د.أ)",
+                    deletedTransactionsCount = deletedTransactionsCount,
+                    totalAmount = totalAmount
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في حذف معاملات العميل: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
+        }
     }
 }

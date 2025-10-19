@@ -26,6 +26,10 @@ namespace CustomerDetails.Controllers
                 if (string.IsNullOrWhiteSpace(body.EmployeeId) || string.IsNullOrWhiteSpace(body.Name))
                     return BadRequest(new { message = "EmployeeId و Name مطلوبان" });
 
+                // التحقق من أن رقم العميل يحتوي على أرقام فقط
+                if (!System.Text.RegularExpressions.Regex.IsMatch(body.EmployeeId, @"^[0-9]+$"))
+                    return BadRequest(new { message = "رقم العميل يجب أن يحتوي على أرقام فقط" });
+
                 var col = _db.Collection(EmployeesCollection);
                 // enforce unique employeeId
                 var existing = await col.WhereEqualTo("employeeId", body.EmployeeId).Limit(1).GetSnapshotAsync();
@@ -126,8 +130,8 @@ namespace CustomerDetails.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"خطأ في جلب بيانات العميلين: {ex.Message}");
-                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات العميلين", error = ex.Message });
+                Console.WriteLine($"خطأ في جلب بيانات العملاء: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات العملاء", error = ex.Message });
             }
         }
 

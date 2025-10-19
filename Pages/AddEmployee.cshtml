@@ -82,6 +82,23 @@
             color: #0c5460;
             border: 1px solid #bee5eb;
         }
+
+        .invalid-feedback {
+            display: none;
+            width: 100%;
+            margin-top: 0.25rem;
+            font-size: 0.875em;
+            color: #dc3545;
+        }
+
+        .is-invalid~.invalid-feedback {
+            display: block;
+        }
+
+        .is-invalid {
+            border-color: #dc3545;
+            box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25);
+        }
     </style>
 }
 
@@ -91,7 +108,11 @@
         <div class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">رقم العميل</label>
-                <input class="form-control" id="employeeId" required />
+                <input class="form-control" id="employeeId" type="text" pattern="[0-9]+"
+                    title="يجب أن يحتوي رقم العميل على أرقام فقط" required />
+                <div class="invalid-feedback" id="employeeIdError">
+                    رقم العميل يجب أن يحتوي على أرقام فقط
+                </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">نوع الوثيقة</label>
@@ -150,6 +171,28 @@
     <script>
         let selectedImageFile = null;
         let uploadedImageUrl = null;
+
+        // التحقق من صحة رقم العميل
+        function validateEmployeeId() {
+            const employeeIdInput = document.getElementById('employeeId');
+            const employeeId = employeeIdInput.value.trim();
+            const isValid = /^[0-9]+$/.test(employeeId);
+
+            if (employeeId && !isValid) {
+                employeeIdInput.classList.add('is-invalid');
+                return false;
+            } else {
+                employeeIdInput.classList.remove('is-invalid');
+                return true;
+            }
+        }
+
+        // إضافة event listener للتحقق أثناء الكتابة
+        document.addEventListener('DOMContentLoaded', function () {
+            const employeeIdInput = document.getElementById('employeeId');
+            employeeIdInput.addEventListener('input', validateEmployeeId);
+            employeeIdInput.addEventListener('blur', validateEmployeeId);
+        });
 
         // اختيار الصورة من الاستديو
         function selectImageFromGallery() {
@@ -244,6 +287,13 @@
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
             resultMsg.innerHTML = '';
+
+            // التحقق من صحة رقم العميل قبل الإرسال
+            if (!validateEmployeeId()) {
+                resultMsg.innerHTML = '<div class="alert alert-danger">رقم العميل يجب أن يحتوي على أرقام فقط</div>';
+                return;
+            }
+
             const payload = {
                 employeeId: document.getElementById('employeeId').value.trim(),
                 identityType: document.getElementById('identityType').value,

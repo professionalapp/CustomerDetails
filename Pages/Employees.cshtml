@@ -375,13 +375,13 @@
                     searchResults.innerHTML = '<div class="no-results">لا توجد نتائج</div>';
                 } else {
                     searchResults.innerHTML = results.map(e => `
-                                                                                                                        <div class="search-result-item" onclick="selectEmployee('${e.id}')">
-                                                                                                                            <div class="search-result-name">${e.name}</div>
-                                                                                                                            <div class="search-result-details">
-                                                                                                                                رقم العميل: ${e.id} | العمر: ${e.age} سنة | تاريخ الإنشاء: ${e.joinDate}
+                                                                                                                            <div class="search-result-item" onclick="selectEmployee('${e.id}')">
+                                                                                                                                <div class="search-result-name">${e.name}</div>
+                                                                                                                                <div class="search-result-details">
+                                                                                                                                    رقم العميل: ${e.id} | العمر: ${e.age} سنة | تاريخ الإنشاء: ${e.joinDate}
+                                                                                                                                </div>
                                                                                                                             </div>
-                                                                                                                        </div>
-                                                                                                                    `).join('');
+                                                                                                                        `).join('');
                 }
                 searchResults.style.display = 'block';
             } catch (err) {
@@ -400,13 +400,13 @@
         async function loadEmployee(id) {
             try {
                 searchContent.innerHTML = `
-                                                                                                                                    <div class="text-center py-4">
-                                                                                                                                        <div class="spinner-border text-primary" role="status">
-                                                                                                                                            <span class="visually-hidden">جاري التحميل...</span>
+                                                                                                                                        <div class="text-center py-4">
+                                                                                                                                            <div class="spinner-border text-primary" role="status">
+                                                                                                                                                <span class="visually-hidden">جاري التحميل...</span>
+                                                                                                                                            </div>
+                                                                                                                                            <p class="mt-2">جاري تحميل بيانات العميل...</p>
                                                                                                                                         </div>
-                                                                                                                                        <p class="mt-2">جاري تحميل بيانات العميل...</p>
-                                                                                                                                    </div>
-                                                                                                                                `;
+                                                                                                                                    `;
 
                 const [empRes, trRes] = await Promise.all([
                     fetch(`/api/employees/${encodeURIComponent(id)}`),
@@ -428,85 +428,85 @@
                 const totalAmount = transactions.reduce((sum, t) => sum + (t.amount || 0), 0);
 
                 const transactionsTable = transactions.length > 0 ? `
-                                                                                                        <div class="card mt-4">
-                                                                                                            <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
-                                                                                                                <h4 class="mb-0 text-white">سجل المعاملات 💳</h4>
-                                                                                                                <button class="btn btn-sm btn-light" title="ملخص المعاملات" onclick="openTxSummary()">
-                                                                                                                    <i class="fas fa-chart-pie"></i>
-                                                                                                                </button>
-                                                                                                            </div>
-                                                                                                            <div class="card-body">
-                                                                                                                <!-- Transaction Total -->
-                                                                                                                <div class="row mb-3 text-center">
-                                                                                                                    <div class="col-12">
-                                                                                                                        <div class="p-2 border rounded bg-light">
-                                                                                                                            <strong>مجموع المبالغ:</strong> <span class="fw-bold">${totalAmount.toLocaleString()} د.أ</span>
+                                                                                                            <div class="card mt-4">
+                                                                                                                <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                                                                                                                    <h4 class="mb-0 text-white">سجل المعاملات 💳</h4>
+                                                                                                                    <button class="btn btn-sm btn-light" title="ملخص المعاملات" onclick="openTxSummary()">
+                                                                                                                        <i class="fas fa-chart-pie"></i>
+                                                                                                                    </button>
+                                                                                                                </div>
+                                                                                                                <div class="card-body">
+                                                                                                                    <!-- Transaction Total -->
+                                                                                                                    <div class="row mb-3 text-center">
+                                                                                                                        <div class="col-12">
+                                                                                                                            <div class="p-2 border rounded bg-light">
+                                                                                                                                <strong>مجموع المبالغ:</strong> <span class="fw-bold">${totalAmount.toLocaleString()} د.أ</span>
+                                                                                                                            </div>
                                                                                                                         </div>
                                                                                                                     </div>
-                                                                                                                </div>
 
-                                                                                                                <div class="table-responsive">
-                                                                                                                    <table class="table table-striped table-hover">
-                                                                                                                        <thead class="table-dark">
-                                                                                                                            <tr>
-                                                                                                                                <th>نوع المعاملة</th>
-                                                                                                                                <th>المبلغ</th>
-                                                                                                                                <th>التاريخ والوقت</th>
-                                                                                                                                <th>الصندوق</th>
-                                                                                                                                <th>الوصف</th>
-                                                                                                                                <th>الإجراءات</th>
-                                                                                                                            </tr>
-                                                                                                                        </thead>
-                                                                                                                        <tbody>
-                                                                                                                            ${transactions.map(t => `
+                                                                                                                    <div class="table-responsive">
+                                                                                                                        <table class="table table-striped table-hover">
+                                                                                                                            <thead class="table-dark">
                                                                                                                                 <tr>
-                                                                                                                                    <td><span class="badge ${t.transactionType === 'إيداع' ? 'bg-success' : 'bg-danger'}">${t.transactionType ?? ''}</span></td>
-                                                                                                                                    <td class="${t.transactionType === 'إيداع' ? 'text-success' : 'text-danger'} fw-bold">${(t.amount ?? 0).toLocaleString()}</td>
-                                                                                                                                    <td>${t.transactionTime ?? ''}</td>
-                                                                                                                                    <td>${t.boxNumber ?? ''}</td>
-                                                                                                                                    <td>${t.description ?? ''}</td>
-                                                                                                                                    <td><button class="btn btn-sm btn-info" onclick="openEditTxModal('${t.documentId}')">تعديل</button></td>
+                                                                                                                                    <th>نوع المعاملة</th>
+                                                                                                                                    <th>المبلغ</th>
+                                                                                                                                    <th>التاريخ والوقت</th>
+                                                                                                                                    <th>الصندوق</th>
+                                                                                                                                    <th>الوصف</th>
+                                                                                                                                    <th>الإجراءات</th>
                                                                                                                                 </tr>
-                                                                                                                            `).join('')}
-                                                                                                                        </tbody>
-                                                                                                                    </table>
+                                                                                                                            </thead>
+                                                                                                                            <tbody>
+                                                                                                                                ${transactions.map(t => `
+                                                                                                                                    <tr>
+                                                                                                                                        <td><span class="badge ${t.transactionType === 'إيداع' ? 'bg-success' : 'bg-danger'}">${t.transactionType ?? ''}</span></td>
+                                                                                                                                        <td class="${t.transactionType === 'إيداع' ? 'text-success' : 'text-danger'} fw-bold">${(t.amount ?? 0).toLocaleString()}</td>
+                                                                                                                                        <td>${t.transactionTime ?? ''}</td>
+                                                                                                                                        <td>${t.boxNumber ?? ''}</td>
+                                                                                                                                        <td>${t.description ?? ''}</td>
+                                                                                                                                        <td><button class="btn btn-sm btn-info" onclick="openEditTxModal('${t.documentId}')">تعديل</button></td>
+                                                                                                                                    </tr>
+                                                                                                                                `).join('')}
+                                                                                                                            </tbody>
+                                                                                                                        </table>
+                                                                                                                    </div>
                                                                                                                 </div>
                                                                                                             </div>
-                                                                                                        </div>
-                                                                                                    ` : `
-                                                                                                        <div class="card mt-4">
-                                                                                                            <div class="card-header bg-success text-white">
-                                                                                                                <h4 class="mb-0 text-white">سجل المعاملات 💳</h4>
+                                                                                                        ` : `
+                                                                                                            <div class="card mt-4">
+                                                                                                                <div class="card-header bg-success text-white">
+                                                                                                                    <h4 class="mb-0 text-white">سجل المعاملات 💳</h4>
+                                                                                                                </div>
+                                                                                                                <div class="card-body text-center text-muted">لا توجد معاملات لهذا العميل</div>
                                                                                                             </div>
-                                                                                                            <div class="card-body text-center text-muted">لا توجد معاملات لهذا العميل</div>
-                                                                                                        </div>
-                                                                                                    `;
+                                                                                                        `;
 
                 searchContent.innerHTML = `
-                                                                                                                                    <div class="card mb-4">
-                                                                                                                                        <div class="card-header bg-primary text-white">
-                                                                                                                                            <h3 class="mb-0 text-white">معلومات العميل 👤</h3>
+                                                                                                                                        <div class="card mb-4">
+                                                                                                                                            <div class="card-header bg-primary text-white">
+                                                                                                                                                <h3 class="mb-0 text-white">معلومات العميل 👤</h3>
+                                                                                                                                            </div>
+                                                                                                                                            <div class="card-body">
+                                                                                                                                                <div class="d-flex justify-content-end mb-3">
+                                                                                                                                                    <button class="btn btn-warning me-2" onclick="openEditModal(window.currentEmployee)">تعديل البيانات</button>
+                                                                                                                                                    <button class="btn btn-success" onclick="openTxModal()">إضافة معاملة</button>
+                                                                                                                                                </div>
+                                                                                                                                                <div class="row">
+                                                                                                                                                    <div class="col-md-3"><strong>رقم العميل:</strong><br><span class="text-primary">${emp.id}</span></div>
+                                                                                                                                                    <div class="col-md-3"><strong>الاسم:</strong><br><span>${emp.name}</span></div>
+                                                                                                                                                    <div class="col-md-3"><strong>العمر:</strong><br><span>${emp.age} سنة</span></div>
+                                                                                                                                                    <div class="col-md-3"><strong>تاريخ الإنشاء:</strong><br><span>${emp.createdAt ?? ''}</span></div>
+                                                                                                                                                </div>
+                                                                                                                                                <div class="row mt-3">
+                                                                                                                                                    <div class="col-md-6"><strong>العنوان:</strong><br><span>${emp.address ?? ''}</span></div>
+                                                                                                                                                    <div class="col-md-3"><strong>نوع الهوية:</strong><br><span>${emp.identityType ?? ''}</span></div>
+                                                                                                                                                </div>
+                                                                                                                                                ${emp.imageUrl ? `<div class="mt-3"><img src="${emp.imageUrl}" alt="صورة العميل" class="img-fluid" style="max-width:200px;border-radius:8px; cursor:pointer;" onclick="openImageModal('${emp.imageUrl}')"></div>` : ''}
+                                                                                                                                            </div>
                                                                                                                                         </div>
-                                                                                                                                        <div class="card-body">
-                                                                                                                                            <div class="d-flex justify-content-end mb-3">
-                                                                                                                                                <button class="btn btn-warning me-2" onclick="openEditModal(window.currentEmployee)">تعديل البيانات</button>
-                                                                                                                                                <button class="btn btn-success" onclick="openTxModal()">إضافة معاملة</button>
-                                                                                                                                            </div>
-                                                                                                                                            <div class="row">
-                                                                                                                                                <div class="col-md-3"><strong>رقم العميل:</strong><br><span class="text-primary">${emp.id}</span></div>
-                                                                                                                                                <div class="col-md-3"><strong>الاسم:</strong><br><span>${emp.name}</span></div>
-                                                                                                                                                <div class="col-md-3"><strong>العمر:</strong><br><span>${emp.age} سنة</span></div>
-                                                                                                                                                <div class="col-md-3"><strong>تاريخ الإنشاء:</strong><br><span>${emp.createdAt ?? ''}</span></div>
-                                                                                                                                            </div>
-                                                                                                                                            <div class="row mt-3">
-                                                                                                                                                <div class="col-md-6"><strong>العنوان:</strong><br><span>${emp.address ?? ''}</span></div>
-                                                                                                                                                <div class="col-md-3"><strong>نوع الهوية:</strong><br><span>${emp.identityType ?? ''}</span></div>
-                                                                                                                                            </div>
-                                                                                                                                            ${emp.imageUrl ? `<div class="mt-3"><img src="${emp.imageUrl}" alt="صورة العميل" class="img-fluid" style="max-width:200px;border-radius:8px; cursor:pointer;" onclick="openImageModal('${emp.imageUrl}')"></div>` : ''}
-                                                                                                                                        </div>
-                                                                                                                                    </div>
-                                                                                                                        ${transactionsTable}
-                                                                                                                    `;
+                                                                                                                            ${transactionsTable}
+                                                                                                                        `;
             } catch (err) {
                 console.error(err);
                 searchContent.innerHTML = `<div class="alert alert-danger text-center">حدث خطأ أثناء تحميل بيانات العميل</div>`;
@@ -517,13 +517,13 @@
         async function loadAllEmployees() {
             try {
                 searchContent.innerHTML = `
-                                                                                                                                        <div class="text-center py-4">
-                                                                                                                                            <div class="spinner-border text-primary" role="status">
-                                                                                                                                                <span class="visually-hidden">جاري تحميل كل العملاء...</span>
+                                                                                                                                            <div class="text-center py-4">
+                                                                                                                                                <div class="spinner-border text-primary" role="status">
+                                                                                                                                                    <span class="visually-hidden">جاري تحميل كل العملاء...</span>
+                                                                                                                                                </div>
+                                                                                                                                                <p class="mt-2">جاري تحميل جميع بيانات العملاء...</p>
                                                                                                                                             </div>
-                                                                                                                                            <p class="mt-2">جاري تحميل جميع بيانات العملاء...</p>
-                                                                                                                                        </div>
-                                                                                                                                    `;
+                                                                                                                                        `;
                 searchInput.style.display = 'none'; // Hide search input when showing all
                 searchResults.style.display = 'none'; // Hide search results
 
@@ -532,39 +532,39 @@
 
                 if (employees.length > 0) {
                     searchContent.innerHTML = `
-                                                                                                        <div class="table-responsive">
-                                                                                                            <table class="table table-striped" id="employeesTable">
-                                                                                                                <thead class="table-dark">
-                                                                                                                    <tr>
-                                                                                                                        <th>رقم العميل</th>
-                                                                                                                        <th>الاسم</th>
-                                                                                                                        <th>العمر</th>
-                                                                                                                        <th>تاريخ الإنشاء</th>
-                                                                                                                        <th>العنوان</th>
-                                                                                                                        <th>الهوية</th>
-                                                                                                                        <th>صورة</th>
-                                                                                                                        <th>الإجراءات</th>
-                                                                                                                    </tr>
-                                                                                                                </thead>
-                                                                                                                <tbody>
-                                                                                                                    ${employees.map(e => `
+                                                                                                            <div class="table-responsive">
+                                                                                                                <table class="table table-striped" id="employeesTable">
+                                                                                                                    <thead class="table-dark">
                                                                                                                         <tr>
-                                                                                                                            <td>${e.id ?? ''}</td>
-                                                                                                                            <td>${e.name ?? ''}</td>
-                                                                                                                            <td>${e.age ?? ''}</td>
-                                                                                                                            <td>${e.createdAt ?? ''}</td>
-                                                                                                                            <td>${e.address ?? ''}</td>
-                                                                                                                            <td>${(e.identityType ?? '') + (e.identityName ? ' - ' + e.identityName : '')}</td>
-                                                                                                                            <td>${e.imageUrl ? `<img src="${e.imageUrl}" alt="صورة العميل" class="img-thumbnail" style="max-width:80px;border-radius:6px; cursor:pointer;" onclick="openImageModal('${e.imageUrl}')">` : ''}</td>
-                                                                                                                            <td><button class="btn btn-sm btn-info" onclick="loadEmployee('${e.id}')">عرض التفاصيل</button></td>
+                                                                                                                            <th>رقم العميل</th>
+                                                                                                                            <th>الاسم</th>
+                                                                                                                            <th>العمر</th>
+                                                                                                                            <th>تاريخ الإنشاء</th>
+                                                                                                                            <th>العنوان</th>
+                                                                                                                            <th>الهوية</th>
+                                                                                                                            <th>صورة</th>
+                                                                                                                            <th>الإجراءات</th>
                                                                                                                         </tr>
-                                                                                                                    `).join('')}
-                                                                                                                </tbody>
-                                                                                                            </table>
-                                                                                                        </div>
-                                                                                                    `;
+                                                                                                                    </thead>
+                                                                                                                    <tbody>
+                                                                                                                        ${employees.map(e => `
+                                                                                                                            <tr>
+                                                                                                                                <td>${e.id ?? ''}</td>
+                                                                                                                                <td>${e.name ?? ''}</td>
+                                                                                                                                <td>${e.age ?? ''}</td>
+                                                                                                                                <td>${e.createdAt ?? ''}</td>
+                                                                                                                                <td>${e.address ?? ''}</td>
+                                                                                                                                <td>${(e.identityType ?? '') + (e.identityName ? ' - ' + e.identityName : '')}</td>
+                                                                                                                                <td>${e.imageUrl ? `<img src="${e.imageUrl}" alt="صورة العميل" class="img-thumbnail" style="max-width:80px;border-radius:6px; cursor:pointer;" onclick="openImageModal('${e.imageUrl}')">` : ''}</td>
+                                                                                                                                <td><button class="btn btn-sm btn-info" onclick="loadEmployee('${e.id}')">عرض التفاصيل</button></td>
+                                                                                                                            </tr>
+                                                                                                                        `).join('')}
+                                                                                                                    </tbody>
+                                                                                                                </table>
+                                                                                                            </div>
+                                                                                                        `;
                 } else {
-                    searchContent.innerHTML = `<div class="alert alert-info text-center">لا يوجد عميلون في فايربيس حالياً.</div>`;
+                    searchContent.innerHTML = `<div class="alert alert-info text-center">لا يوجد عملاء.</div>`;
                 }
             } catch (err) {
                 console.error('خطأ في تحميل كل العملاء:', err);
@@ -1002,33 +1002,33 @@
 
             const body = document.getElementById('txSummaryBody');
             body.innerHTML = `
-                                                                                                <div class="row text-center mb-3">
-                                                                                                    <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>الإيداعات:</strong> <span class="text-success">${totalDeposits.toLocaleString()} د.أ</span></div></div>
-                                                                                                    <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>السحوبات:</strong> <span class="text-danger">${totalWithdrawals.toLocaleString()} د.أ</span></div></div>
-                                                                                                    <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>التحويلات:</strong> <span>${totalTransfers.toLocaleString()} د.أ</span></div></div>
-                                                                                                    <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>المجموع النهائي:</strong> <span class="fw-bold">${grandTotal.toLocaleString()} د.أ</span></div></div>
-                                                                                                </div>
-                                                                                                <div class="table-responsive">
-                                                                                                    <table class="table table-sm table-striped">
-                                                                                                        <thead class="table-dark">
-                                                                                                            <tr>
-                                                                                                                <th>النوع</th><th>المبلغ</th><th>الوقت</th><th>الصندوق</th><th>الوصف</th>
-                                                                                                            </tr>
-                                                                                                        </thead>
-                                                                                                        <tbody>
-                                                                                                            ${txs.map(t => `
+                                                                                                    <div class="row text-center mb-3">
+                                                                                                        <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>الإيداعات:</strong> <span class="text-success">${totalDeposits.toLocaleString()} د.أ</span></div></div>
+                                                                                                        <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>السحوبات:</strong> <span class="text-danger">${totalWithdrawals.toLocaleString()} د.أ</span></div></div>
+                                                                                                        <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>التحويلات:</strong> <span>${totalTransfers.toLocaleString()} د.أ</span></div></div>
+                                                                                                        <div class="col-md-3"><div class="p-2 border rounded bg-light"><strong>المجموع النهائي:</strong> <span class="fw-bold">${grandTotal.toLocaleString()} د.أ</span></div></div>
+                                                                                                    </div>
+                                                                                                    <div class="table-responsive">
+                                                                                                        <table class="table table-sm table-striped">
+                                                                                                            <thead class="table-dark">
                                                                                                                 <tr>
-                                                                                                                    <td>${t.type}</td>
-                                                                                                                    <td>${t.amount.toLocaleString()} د.أ</td>
-                                                                                                                    <td>${t.time}</td>
-                                                                                                                    <td>${t.box}</td>
-                                                                                                                    <td>${t.desc}</td>
+                                                                                                                    <th>النوع</th><th>المبلغ</th><th>الوقت</th><th>الصندوق</th><th>الوصف</th>
                                                                                                                 </tr>
-                                                                                                            `).join('')}
-                                                                                                        </tbody>
-                                                                                                    </table>
-                                                                                                </div>
-                                                                                            `;
+                                                                                                            </thead>
+                                                                                                            <tbody>
+                                                                                                                ${txs.map(t => `
+                                                                                                                    <tr>
+                                                                                                                        <td>${t.type}</td>
+                                                                                                                        <td>${t.amount.toLocaleString()} د.أ</td>
+                                                                                                                        <td>${t.time}</td>
+                                                                                                                        <td>${t.box}</td>
+                                                                                                                        <td>${t.desc}</td>
+                                                                                                                    </tr>
+                                                                                                                `).join('')}
+                                                                                                            </tbody>
+                                                                                                        </table>
+                                                                                                    </div>
+                                                                                                `;
             new bootstrap.Modal(document.getElementById('txSummaryModal')).show();
         }
 

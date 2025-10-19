@@ -124,14 +124,16 @@
             </div>
             <div class="col-md-4">
                 <label class="form-label">الاسم</label>
-                <input class="form-control" id="name" type="text" pattern="[أ-ي\s]+" title="يجب أن يحتوي الاسم على أحرف عربية فقط" required />
+                <input class="form-control" id="name" type="text" pattern="[أ-ي\s]+"
+                    title="يجب أن يحتوي الاسم على أحرف عربية فقط" required />
                 <div class="invalid-feedback" id="nameError">
                     الاسم يجب أن يحتوي على أحرف عربية فقط
                 </div>
             </div>
             <div class="col-md-4">
                 <label class="form-label">العمر</label>
-                <input type="text" class="form-control" id="age" pattern="[0-9]+" title="يجب أن يحتوي العمر على أرقام فقط" min="0" />
+                <input type="text" class="form-control" id="age" pattern="[0-9]+"
+                    title="يجب أن يحتوي العمر على أرقام فقط" min="0" />
                 <div class="invalid-feedback" id="ageError">
                     العمر يجب أن يحتوي على أرقام فقط
                 </div>
@@ -228,13 +230,13 @@
             const employeeIdInput = document.getElementById('employeeId');
             const nameInput = document.getElementById('name');
             const ageInput = document.getElementById('age');
-            
+
             employeeIdInput.addEventListener('input', validateEmployeeId);
             employeeIdInput.addEventListener('blur', validateEmployeeId);
-            
+
             nameInput.addEventListener('input', validateName);
             nameInput.addEventListener('blur', validateName);
-            
+
             ageInput.addEventListener('input', validateAge);
             ageInput.addEventListener('blur', validateAge);
         });
@@ -338,12 +340,12 @@
                 resultMsg.innerHTML = '<div class="alert alert-danger">رقم العميل يجب أن يحتوي على أرقام فقط</div>';
                 return;
             }
-            
+
             if (!validateName()) {
                 resultMsg.innerHTML = '<div class="alert alert-danger">الاسم يجب أن يحتوي على أحرف عربية فقط</div>';
                 return;
             }
-            
+
             if (!validateAge()) {
                 resultMsg.innerHTML = '<div class="alert alert-danger">العمر يجب أن يحتوي على أرقام فقط</div>';
                 return;

@@ -30,6 +30,14 @@ namespace CustomerDetails.Controllers
                 if (!System.Text.RegularExpressions.Regex.IsMatch(body.EmployeeId, @"^[0-9]+$"))
                     return BadRequest(new { message = "رقم العميل يجب أن يحتوي على أرقام فقط" });
 
+                // التحقق من أن الاسم يحتوي على أحرف عربية فقط
+                if (!System.Text.RegularExpressions.Regex.IsMatch(body.Name, @"^[أ-ي\s]+$"))
+                    return BadRequest(new { message = "الاسم يجب أن يحتوي على أحرف عربية فقط" });
+
+                // التحقق من أن العمر يحتوي على أرقام فقط
+                if (body.Age.ToString() != "" && !System.Text.RegularExpressions.Regex.IsMatch(body.Age.ToString(), @"^[0-9]+$"))
+                    return BadRequest(new { message = "العمر يجب أن يحتوي على أرقام فقط" });
+
                 var col = _db.Collection(EmployeesCollection);
                 // enforce unique employeeId
                 var existing = await col.WhereEqualTo("employeeId", body.EmployeeId).Limit(1).GetSnapshotAsync();
@@ -52,23 +60,39 @@ namespace CustomerDetails.Controllers
         [HttpPut("{employeeId}")]
         public async Task<IActionResult> UpdateEmployee(string employeeId, [FromBody] Employee body)
         {
-            var col = _db.Collection(EmployeesCollection);
-            var snapshot = await col.WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
-            var doc = snapshot.Documents.FirstOrDefault();
-            if (doc == null) return NotFound(new { message = "العميل غير موجود" });
-
-            var updates = new Dictionary<string, object?>
+            try
             {
-                ["name"] = body.Name,
-                ["age"] = body.Age,
-                ["address"] = body.Address,
-                ["identityName"] = body.IdentityName,
-                ["identityType"] = body.IdentityType,
-                ["imageUrl"] = body.ImageUrl,
-                ["updatedAt"] = Timestamp.FromDateTime(DateTime.UtcNow)
-            };
-            await doc.Reference.UpdateAsync(updates);
-            return Ok(new { id = employeeId });
+                // التحقق من أن الاسم يحتوي على أحرف عربية فقط
+                if (!string.IsNullOrWhiteSpace(body.Name) && !System.Text.RegularExpressions.Regex.IsMatch(body.Name, @"^[أ-ي\s]+$"))
+                    return BadRequest(new { message = "الاسم يجب أن يحتوي على أحرف عربية فقط" });
+
+                // التحقق من أن العمر يحتوي على أرقام فقط
+                if (body.Age > 0 && !System.Text.RegularExpressions.Regex.IsMatch(body.Age.ToString(), @"^[0-9]+$"))
+                    return BadRequest(new { message = "العمر يجب أن يحتوي على أرقام فقط" });
+
+                var col = _db.Collection(EmployeesCollection);
+                var snapshot = await col.WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
+                var doc = snapshot.Documents.FirstOrDefault();
+                if (doc == null) return NotFound(new { message = "العميل غير موجود" });
+
+                var updates = new Dictionary<string, object?>
+                {
+                    ["name"] = body.Name,
+                    ["age"] = body.Age,
+                    ["address"] = body.Address,
+                    ["identityName"] = body.IdentityName,
+                    ["identityType"] = body.IdentityType,
+                    ["imageUrl"] = body.ImageUrl,
+                    ["updatedAt"] = Timestamp.FromDateTime(DateTime.UtcNow)
+                };
+                await doc.Reference.UpdateAsync(updates);
+                return Ok(new { id = employeeId, message = "تم تحديث العميل بنجاح" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في تحديث العميل: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
         }
 
         // CREATE transaction for employeeId

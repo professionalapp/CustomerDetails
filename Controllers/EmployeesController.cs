@@ -457,7 +457,7 @@ namespace CustomerDetails.Controllers
                 var txCol = _db.Collection(TransactionsCollection);
                 var txDoc = txCol.Document(transactionId);
                 var txSnapshot = await txDoc.GetSnapshotAsync();
-                
+
                 if (!txSnapshot.Exists)
                     return NotFound(new { message = "المعاملة غير موجودة" });
 
@@ -470,8 +470,9 @@ namespace CustomerDetails.Controllers
 
                 Console.WriteLine($"تم حذف المعاملة: {transactionType} - {transactionAmount} د.أ (رقم العميل: {employeeId})");
 
-                return Ok(new { 
-                    ok = true, 
+                return Ok(new
+                {
+                    ok = true,
                     message = $"تم حذف المعاملة '{transactionType}' بقيمة {transactionAmount} د.أ بنجاح"
                 });
             }
@@ -505,24 +506,25 @@ namespace CustomerDetails.Controllers
                 // Delete all transactions for this employee
                 var txCol = _db.Collection(TransactionsCollection);
                 var txSnapshot = await txCol.WhereEqualTo("employeeId", employeeId).GetSnapshotAsync();
-                
+
                 int deletedTransactionsCount = 0;
                 decimal totalAmount = 0;
-                
+
                 foreach (var txDoc in txSnapshot.Documents)
                 {
                     var txData = txDoc.ConvertTo<EmployeeTransaction>();
                     if (txData?.Amount != null)
-                        totalAmount += txData.Amount.Value;
-                    
+                        totalAmount += (decimal)txData.Amount;
+
                     await txDoc.Reference.DeleteAsync();
                     deletedTransactionsCount++;
                 }
 
                 Console.WriteLine($"تم حذف جميع معاملات العميل: {employeeName} (رقم العميل: {employeeId}) - {deletedTransactionsCount} معاملة بقيمة إجمالية {totalAmount} د.أ");
 
-                return Ok(new { 
-                    ok = true, 
+                return Ok(new
+                {
+                    ok = true,
                     message = $"تم حذف جميع معاملات العميل '{employeeName}' بنجاح ({deletedTransactionsCount} معاملة بقيمة {totalAmount} د.أ)",
                     deletedTransactionsCount = deletedTransactionsCount,
                     totalAmount = totalAmount

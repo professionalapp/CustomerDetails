@@ -198,10 +198,6 @@
 
                             <!-- أزرار اختيار الصورة -->
                             <div id="editImageUploadButtons" class="upload-buttons">
-                                <button type="button" class="btn btn-success me-2"
-                                    onclick="selectEditImageFromCamera()">
-                                    <i class="fas fa-camera"></i> الكاميرا
-                                </button>
                                 <button type="button" class="btn btn-primary" onclick="selectEditImageFromGallery()">
                                     <i class="fas fa-images"></i> الاستديو
                                 </button>
@@ -580,13 +576,6 @@
         // متغيرات لرفع الصور في نموذج التعديل
         let editSelectedImageFile = null;
         let editUploadedImageUrl = null;
-
-        // اختيار الصورة من الكاميرا في التعديل
-        function selectEditImageFromCamera() {
-            const input = document.getElementById('editImageInput');
-            input.setAttribute('capture', 'camera');
-            input.click();
-        }
 
         // اختيار الصورة من الاستديو في التعديل
         function selectEditImageFromGallery() {

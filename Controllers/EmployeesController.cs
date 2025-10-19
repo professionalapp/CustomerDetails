@@ -99,18 +99,34 @@ namespace CustomerDetails.Controllers
         [HttpPost("{employeeId}/transactions")]
         public async Task<IActionResult> CreateTransaction(string employeeId, [FromBody] EmployeeTransaction tx)
         {
-            if (string.IsNullOrWhiteSpace(employeeId)) return BadRequest(new { message = "EmployeeId مطلوب" });
-            if (tx.Amount == 0 || string.IsNullOrWhiteSpace(tx.TransactionType)) return BadRequest(new { message = "النوع والمبلغ مطلوبان" });
+            try
+            {
+                if (string.IsNullOrWhiteSpace(employeeId)) return BadRequest(new { message = "EmployeeId مطلوب" });
+                if (tx.Amount == 0 || string.IsNullOrWhiteSpace(tx.TransactionType)) return BadRequest(new { message = "النوع والمبلغ مطلوبان" });
 
-            // ensure employee exists
-            var empSnap = await _db.Collection(EmployeesCollection).WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
-            if (!empSnap.Any()) return NotFound(new { message = "العميل غير موجود" });
+                // التحقق من أن المبلغ يحتوي على أرقام فقط
+                if (!System.Text.RegularExpressions.Regex.IsMatch(tx.Amount.ToString(), @"^[0-9]+(\.[0-9]+)?$"))
+                    return BadRequest(new { message = "المبلغ يجب أن يحتوي على أرقام فقط" });
 
-            tx.EmployeeId = employeeId;
-            tx.TransactionTime ??= Timestamp.FromDateTime(DateTime.UtcNow);
-            tx.CreatedAt ??= Timestamp.FromDateTime(DateTime.UtcNow);
-            await _db.Collection(TransactionsCollection).AddAsync(tx);
-            return Ok(new { ok = true });
+                // التحقق من أن رقم الصندوق يحتوي على أرقام فقط (إذا كان موجوداً)
+                if (!string.IsNullOrWhiteSpace(tx.BoxNumber) && !System.Text.RegularExpressions.Regex.IsMatch(tx.BoxNumber, @"^[0-9]+$"))
+                    return BadRequest(new { message = "رقم الصندوق يجب أن يحتوي على أرقام فقط" });
+
+                // ensure employee exists
+                var empSnap = await _db.Collection(EmployeesCollection).WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
+                if (!empSnap.Any()) return NotFound(new { message = "العميل غير موجود" });
+
+                tx.EmployeeId = employeeId;
+                tx.TransactionTime ??= Timestamp.FromDateTime(DateTime.UtcNow);
+                tx.CreatedAt ??= Timestamp.FromDateTime(DateTime.UtcNow);
+                await _db.Collection(TransactionsCollection).AddAsync(tx);
+                return Ok(new { ok = true, message = "تم إضافة المعاملة بنجاح" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في إضافة المعاملة: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
         }
 
         [HttpGet]
@@ -336,26 +352,39 @@ namespace CustomerDetails.Controllers
         [HttpPut("{employeeId}/transactions/{transactionId}")]
         public async Task<IActionResult> UpdateTransaction(string employeeId, string transactionId, [FromBody] EmployeeTransaction body)
         {
-            // Optional: Verify employeeId matches the transaction's employeeId if needed
-            // For now, assume transactionId is sufficient for direct update
-
-            var docRef = _db.Collection(TransactionsCollection).Document(transactionId);
-            var docSnapshot = await docRef.GetSnapshotAsync();
-            if (!docSnapshot.Exists) return NotFound(new { message = "المعاملة غير موجودة" });
-
-            var updates = new Dictionary<string, object?>
+            try
             {
-                ["amount"] = body.Amount,
-                ["transactionType"] = body.TransactionType,
-                ["boxNumber"] = body.BoxNumber,
-                ["description"] = body.Description,
-                ["transactionTime"] = body.TransactionTime ?? Timestamp.FromDateTime(DateTime.UtcNow) // Allow updating time if provided, otherwise keep existing or default
-            };
+                // التحقق من أن المبلغ يحتوي على أرقام فقط
+                if (!System.Text.RegularExpressions.Regex.IsMatch(body.Amount.ToString(), @"^[0-9]+(\.[0-9]+)?$"))
+                    return BadRequest(new { message = "المبلغ يجب أن يحتوي على أرقام فقط" });
 
-            // Do not allow changing employeeId via transaction update for simplicity
+                // التحقق من أن رقم الصندوق يحتوي على أرقام فقط (إذا كان موجوداً)
+                if (!string.IsNullOrWhiteSpace(body.BoxNumber) && !System.Text.RegularExpressions.Regex.IsMatch(body.BoxNumber, @"^[0-9]+$"))
+                    return BadRequest(new { message = "رقم الصندوق يجب أن يحتوي على أرقام فقط" });
 
-            await docRef.UpdateAsync(updates);
-            return Ok(new { ok = true });
+                var docRef = _db.Collection(TransactionsCollection).Document(transactionId);
+                var docSnapshot = await docRef.GetSnapshotAsync();
+                if (!docSnapshot.Exists) return NotFound(new { message = "المعاملة غير موجودة" });
+
+                var updates = new Dictionary<string, object?>
+                {
+                    ["amount"] = body.Amount,
+                    ["transactionType"] = body.TransactionType,
+                    ["boxNumber"] = body.BoxNumber,
+                    ["description"] = body.Description,
+                    ["transactionTime"] = body.TransactionTime ?? Timestamp.FromDateTime(DateTime.UtcNow) // Allow updating time if provided, otherwise keep existing or default
+                };
+
+                // Do not allow changing employeeId via transaction update for simplicity
+
+                await docRef.UpdateAsync(updates);
+                return Ok(new { ok = true, message = "تم تحديث المعاملة بنجاح" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في تحديث المعاملة: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
         }
     }
 }

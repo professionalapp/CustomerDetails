@@ -124,6 +124,14 @@ app.UseRouting();
 app.UseAuthorization();
 
 app.MapRazorPages();
+
+// تعيين الصفحة الرئيسية كصفحة افتراضية
+app.MapGet("/", context =>
+{
+    context.Response.Redirect("/Home");
+    return Task.CompletedTask;
+});
+
 app.MapControllers();
 
 app.Run();

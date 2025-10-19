@@ -21,19 +21,27 @@ namespace CustomerDetails.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateEmployee([FromBody] Employee body)
         {
-            if (string.IsNullOrWhiteSpace(body.EmployeeId) || string.IsNullOrWhiteSpace(body.Name))
-                return BadRequest(new { message = "EmployeeId و Name مطلوبان" });
+            try
+            {
+                if (string.IsNullOrWhiteSpace(body.EmployeeId) || string.IsNullOrWhiteSpace(body.Name))
+                    return BadRequest(new { message = "EmployeeId و Name مطلوبان" });
 
-            var col = _db.Collection(EmployeesCollection);
-            // enforce unique employeeId
-            var existing = await col.WhereEqualTo("employeeId", body.EmployeeId).Limit(1).GetSnapshotAsync();
-            if (existing.Any())
-                return Conflict(new { message = "يوجد موظف بنفس الرقم" });
+                var col = _db.Collection(EmployeesCollection);
+                // enforce unique employeeId
+                var existing = await col.WhereEqualTo("employeeId", body.EmployeeId).Limit(1).GetSnapshotAsync();
+                if (existing.Any())
+                    return Conflict(new { message = "يوجد عميل بنفس الرقم" });
 
-            var doc = col.Document();
-            body.CreatedAt ??= Timestamp.FromDateTime(DateTime.UtcNow);
-            await doc.SetAsync(body);
-            return Ok(new { id = body.EmployeeId });
+                var doc = col.Document();
+                body.CreatedAt ??= Timestamp.FromDateTime(DateTime.UtcNow);
+                await doc.SetAsync(body);
+                return Ok(new { id = body.EmployeeId, message = "تم إضافة العميل بنجاح" });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"خطأ في إضافة العميل: {ex.Message}");
+                return StatusCode(500, new { message = "خطأ في الخادم: " + ex.Message });
+            }
         }
 
         // UPDATE employee by employeeId
@@ -43,7 +51,7 @@ namespace CustomerDetails.Controllers
             var col = _db.Collection(EmployeesCollection);
             var snapshot = await col.WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
             var doc = snapshot.Documents.FirstOrDefault();
-            if (doc == null) return NotFound(new { message = "الموظف غير موجود" });
+            if (doc == null) return NotFound(new { message = "العميل غير موجود" });
 
             var updates = new Dictionary<string, object?>
             {
@@ -68,7 +76,7 @@ namespace CustomerDetails.Controllers
 
             // ensure employee exists
             var empSnap = await _db.Collection(EmployeesCollection).WhereEqualTo("employeeId", employeeId).Limit(1).GetSnapshotAsync();
-            if (!empSnap.Any()) return NotFound(new { message = "الموظف غير موجود" });
+            if (!empSnap.Any()) return NotFound(new { message = "العميل غير موجود" });
 
             tx.EmployeeId = employeeId;
             tx.TransactionTime ??= Timestamp.FromDateTime(DateTime.UtcNow);
@@ -118,8 +126,8 @@ namespace CustomerDetails.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"خطأ في جلب بيانات الموظفين: {ex.Message}");
-                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات الموظفين", error = ex.Message });
+                Console.WriteLine($"خطأ في جلب بيانات العميلين: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات العميلين", error = ex.Message });
             }
         }
 
@@ -197,7 +205,7 @@ namespace CustomerDetails.Controllers
                 var doc = snapshot.Documents.FirstOrDefault();
                 if (doc == null || !doc.Exists)
                 {
-                    return NotFound(new { message = "الموظف غير موجود" });
+                    return NotFound(new { message = "العميل غير موجود" });
                 }
 
                 var emp = doc.ConvertTo<Employee>();
@@ -216,8 +224,8 @@ namespace CustomerDetails.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"خطأ في جلب بيانات الموظف {employeeId}: {ex.Message}");
-                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات الموظف", error = ex.Message });
+                Console.WriteLine($"خطأ في جلب بيانات العميل {employeeId}: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل بيانات العميل", error = ex.Message });
             }
         }
 
@@ -266,8 +274,8 @@ namespace CustomerDetails.Controllers
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"خطأ في جلب معاملات الموظف {employeeId}: {ex.Message}");
-                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل معاملات الموظف", error = ex.Message });
+                Console.WriteLine($"خطأ في جلب معاملات العميل {employeeId}: {ex.Message}");
+                return StatusCode(500, new { message = "حدث خطأ أثناء تحميل معاملات العميل", error = ex.Message });
             }
         }
 
@@ -282,7 +290,7 @@ namespace CustomerDetails.Controllers
             tr.DocumentId = docSnapshot.Id;
 
             // Optional: Verify employeeId matches the transaction's employeeId
-            if (tr.EmployeeId != employeeId) return Unauthorized(new { message = "المعاملة لا تنتمي لهذا الموظف" });
+            if (tr.EmployeeId != employeeId) return Unauthorized(new { message = "المعاملة لا تنتمي لهذا العميل" });
 
             return Ok(new
             {
